@@ -1,8 +1,9 @@
-/* Sidebar.tsx */
 "use client";
 import { assets } from "@/assets/assets";
 import { useClerk, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
+import ChatLabel from "./chatlabel";
+import { useState } from "react";
 
 interface SidebarProps {
   expand: boolean;
@@ -11,6 +12,12 @@ interface SidebarProps {
 
 export default function Sidebar({ expand, setExpand }: SidebarProps) {
   const { openSignIn } = useClerk();
+
+  // track which chat has menu open
+  const [openMenu, setOpenMenu] = useState<{ id: string | null; open: boolean }>({
+    id: null,
+    open: false,
+  });
 
   return (
     <div
@@ -75,9 +82,9 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
       >
         <p className="mb-2">Recents</p>
         <div className="space-y-2">
-          {/* Example items */}
-          <p className="px-2 py-1 rounded-md hover:bg-gray-600/30 cursor-pointer">Chat 1</p>
-          <p className="px-2 py-1 rounded-md hover:bg-gray-600/30 cursor-pointer">Chat 2</p>
+          {/* Multiple chats */}
+          <ChatLabel chatId="chat-1" openMenu={openMenu} setOpenMenu={setOpenMenu} />
+          <ChatLabel chatId="chat-2" openMenu={openMenu} setOpenMenu={setOpenMenu} />
         </div>
       </div>
 
@@ -142,6 +149,11 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
           >
             <UserButton afterSignOutUrl="/" />
             {expand && <span className="font-medium">My Account</span>}
+            {!expand && (
+              <div className="absolute left-1/2 -bottom-1.5 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
+                My Account
+              </div>
+            )}
           </div>
         </SignedIn>
 
@@ -157,7 +169,7 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
           >
             <Image
               src={assets.profile_icon}
-              alt="Sign In"
+              alt="Profile"
               className="w-6 h-6"
             />
             {expand && <span className="font-medium">Sign In</span>}
