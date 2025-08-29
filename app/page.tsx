@@ -3,7 +3,7 @@ import Image from "next/image"
 import { assets } from "../assets/assets.js"
 import { useState } from "react";
 import Sidebar from "@/components/sidebar";
-
+import PromptBox from "@/components/promptbox";
 export default function Home() {
 
   const [expand, setExpand] = useState(false);
@@ -44,12 +44,11 @@ export default function Home() {
                 </>
               ) : (
                 <div className="w-full">
-                  {/* Messages content will go here */}
                 </div>
               )
             }
           </div>
-          
+          <PromptBox  isLoading={isloading} setIsLoading={setIsLoading}/>
           <div className="absolute bottom-6 left-0 right-0 px-6">
             <p className="text-xs text-center text-gray-400 leading-relaxed">
               AI-Generated, For Reference Only
