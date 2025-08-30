@@ -4,6 +4,7 @@ import { assets } from "../assets/assets.js"
 import { useState } from "react";
 import Sidebar from "@/components/sidebar";
 import PromptBox from "@/components/promptbox";
+import Messages from "@/components/message";
 
 export default function Home() {
   const [expand, setExpand] = useState(false);
@@ -41,7 +42,9 @@ export default function Home() {
                 </p>
               </>
             ) : (
-              <div className="w-full"></div>
+              <div className="w-full">
+                <Messages role="user" content="What is Nextjs" />
+              </div>
             )}
           </div>
 
