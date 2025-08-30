@@ -8,7 +8,7 @@ import Messages from "@/components/message";
 
 export default function Home() {
   const [expand, setExpand] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -24,9 +24,9 @@ export default function Home() {
               onClick={() => setExpand(!expand)} 
               className="cursor-pointer hover:opacity-80 transition-opacity w-6 h-6"
               src={assets.menu_icon} 
-              alt="Menu" 
+              alt='Menu' 
             />
-            <Image className="opacity-80 w-6 h-6" src={assets.chat_icon} alt="Chat" />
+            <Image className="opacity-80 w-6 h-6" src={assets.chat_icon} alt='Chat' />
           </div>
           
           {/* Main Content */}
@@ -34,7 +34,7 @@ export default function Home() {
             {messages.length === 0 ? (
               <>
                 <div className="flex items-center gap-4 mb-4">
-                  <Image src={assets.logo_icon} alt="Logo" className="h-16 w-16" />
+                  <Image src={assets.logo_icon} alt='Logo' className="h-16 w-16" />
                   <p className="text-3xl font-semibold">Hi, I'm Sharky</p>
                 </div>
                 <p className="text-base text-gray-300 leading-relaxed px-4">
@@ -56,7 +56,7 @@ export default function Home() {
           {/* Footer */}
           <div className="absolute bottom-4 left-0 right-0 px-6">
             <p className="text-xs text-center text-gray-400">
-              AI-Generated, For Reference Only
+              AI-Generated For Reference Only
             </p>
           </div>
         </div>
