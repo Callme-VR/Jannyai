@@ -10,6 +10,7 @@ import {
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AppContextProvider } from "@/context/AppContext";
+import { Toaster } from "react-hot-toast";
 
 
 const inter = Inter({
@@ -32,7 +33,20 @@ export default function RootLayout({
       <AppContextProvider>
         <html lang="en">
           <body className={`${inter.variable} antialiased`}>
-
+            <Toaster toastOptions={{
+              success: {
+                style: {
+                  background: 'green',
+                  color: 'white'
+                }
+              },
+              error: {
+                style: {
+                  background: 'red',
+                  color: 'white'
+                }
+              }
+            }} />
             {children}
           </body>
         </html>
