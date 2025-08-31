@@ -37,17 +37,20 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps) {
     selectedChat,
     setSelectedChat,
   } = useAppContext();
-
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendPrompt(e as any);
+    }
+  }
   const sendPrompt = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const promptCopy = prompt;
     try {
       if (!user) {
         toast.error("Please login to send prompt");
         return;
       }
-
       if (isLoading) {
         toast.error("Wait for response");
         return;
@@ -209,8 +212,8 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps) {
             type="submit"
             disabled={!prompt.trim() || isLoading}
             className={`${prompt.trim() && !isLoading
-                ? 'bg-primary hover:bg-primary/90'
-                : 'bg-gray-500'
+              ? 'bg-primary hover:bg-primary/90'
+              : 'bg-gray-500'
               } rounded-full p-3 transition`}
           >
             <Image

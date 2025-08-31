@@ -1,11 +1,19 @@
 import { assets } from "@/assets/assets";
 import Image from "next/image";
+import Markdown from "react-markdown";
+import Prism from 'prismjs';
+import { useEffect } from "react";
 
 interface MessagesProps {
     role: string,
     content: string,
 }
 export default function Messages({ role, content }: MessagesProps) {
+
+    useEffect(() => {
+        Prism.highlightAll();
+    }, [content])
+
     return (
         <div className="flex flex-col items-center w-full max-full max-w-3xl text-sm">
             <div className={`flex flex-col w-full mb-8 ${role === "user" && "items-end"}`}>
@@ -40,7 +48,10 @@ export default function Messages({ role, content }: MessagesProps) {
                             <>
                                 <Image src={assets.like_icon} alt="" className="w-9 h-9 p-1 border border-white/2- rounded-full " />
                                 <div className="space-y-4 w-full overflow-scroll">
-                                    {content}
+                                    <Markdown>
+                                        {content}
+
+                                    </Markdown>
                                 </div>
                             </>
 

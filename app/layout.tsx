@@ -9,6 +9,7 @@ import {
 } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "./prism.css"
 import { AppContextProvider } from "@/context/AppContext";
 import { Toaster } from "react-hot-toast";
 
