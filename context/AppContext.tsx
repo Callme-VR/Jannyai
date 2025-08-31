@@ -23,11 +23,11 @@ interface Message {
 
 // Define the context value type
 interface AppContextType {
-  user:unknown // You can replace 'any' with the actual User type from Clerk if available
+  user: unknown; // You can replace 'unknown' with the actual User type from Clerk if available
   chats: Chat[];
-  setChats: (chats: Chat[]) => void;
+  setChats: (chats: Chat[] | ((prev: Chat[]) => Chat[])) => void;
   selectedChat: Chat | null;
-  setSelectedChat: (chat: Chat | null) => void;
+  setSelectedChat: (chat: Chat | null | ((prev: Chat | null) => Chat | null)) => void;
   fetchChats: () => Promise<void>;
   createNewChat: () => Promise<void>;
 }
