@@ -1,6 +1,7 @@
 "use client";
 import { assets } from "@/assets/assets";
 import { useClerk, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { useAppContext } from "@/context/AppContext";
 import Image from "next/image";
 import ChatLabel from "./chatlabel";
 import { useState } from "react";
@@ -12,6 +13,7 @@ interface SidebarProps {
 
 export default function Sidebar({ expand, setExpand }: SidebarProps) {
   const { openSignIn } = useClerk();
+  const { user, chats, createNewChat } = useAppContext();
 
   // track which chat has menu open
   const [openMenu, setOpenMenu] = useState<{ id: string | null; open: boolean }>({
@@ -27,9 +29,8 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
     >
       {/* Header */}
       <div
-        className={`flex ${
-          expand ? "flex-row items-center gap-4" : "flex-col items-center gap-6"
-        }`}
+        className={`flex ${expand ? "flex-row items-center gap-4" : "flex-col items-center gap-6"
+          }`}
       >
         <Image
           className={expand ? "w-32 h-auto" : "w-8 h-8"}
@@ -54,12 +55,12 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
 
       {/* New Chat */}
       <button
+        onClick={createNewChat}
         className={`mt-2 flex items-center justify-center transition-all duration-200
-        ${
-          expand
+        ${expand
             ? "bg-primary hover:bg-primary/90 rounded-xl gap-2 p-3 w-full text-white font-medium"
             : "group relative h-10 w-10 mx-auto hover:bg-gray-500/30 rounded-lg"
-        }`}
+          }`}
       >
         <Image
           className={expand ? "w-5 h-5" : "w-6 h-6"}
@@ -76,15 +77,28 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
 
       {/* Recents */}
       <div
-        className={`mt-6 text-white/70 text-xs font-medium ${
-          expand ? "block px-2" : "hidden"
-        }`}
+        className={`mt-6 text-white/70 text-xs font-medium ${expand ? "block px-2" : "hidden"
+          }`}
       >
         <p className="mb-2">Recents</p>
         <div className="space-y-2">
-          {/* Multiple chats */}
-          <ChatLabel chatId="chat-1" openMenu={openMenu} setOpenMenu={setOpenMenu} />
-          <ChatLabel chatId="chat-2" openMenu={openMenu} setOpenMenu={setOpenMenu} />
+          {chats.map((chat, index) => (
+            <ChatLabel
+              key={chat._id}
+              openMenu={openMenu}
+              setOpenMenu={setOpenMenu}
+              name={chat.name}
+              chatId={chat._id}
+            />
+          ))}
+
+          {/* Fallback example chats when no chats exist */}
+          {chats.length === 0 && (
+            <>
+              <ChatLabel chatId="chat-1" openMenu={openMenu} setOpenMenu={setOpenMenu} />
+              <ChatLabel chatId="chat-2" openMenu={openMenu} setOpenMenu={setOpenMenu} />
+            </>
+          )}
         </div>
       </div>
 
@@ -93,11 +107,10 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
         {/* QR Scanner / Get App */}
         <div
           className={`flex items-center cursor-pointer group relative transition-all duration-200 
-          ${
-            expand
+          ${expand
               ? "gap-3 text-white/80 text-sm p-3 border border-primary/30 rounded-lg hover:bg-white/10"
               : "h-10 w-10 mx-auto hover:bg-gray-500/30 rounded-lg justify-center"
-          }`}
+            }`}
         >
           <Image
             className={expand ? "w-5 h-5" : "w-6 h-6"}
@@ -113,9 +126,8 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
 
           {/* QR Popup */}
           <div
-            className={`absolute -top-64 pb-6 ${
-              !expand && "-right-44"
-            } opacity-0 group-hover:opacity-100 hidden group-hover:block transition-all duration-300 z-50`}
+            className={`absolute -top-64 pb-6 ${!expand && "-right-44"
+              } opacity-0 group-hover:opacity-100 hidden group-hover:block transition-all duration-300 z-50`}
           >
             <div className="relative w-max bg-gray-900 text-white text-sm p-4 rounded-xl shadow-xl border border-gray-700">
               <Image
@@ -124,14 +136,13 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
                 className="w-40 h-40 mb-2"
               />
               <p className="text-center text-xs text-gray-300">
-                Scan to get PortAi app
+                Scan to get jannyai app
               </p>
               <div
-                className={`w-3 h-3 absolute bg-gray-900 rotate-45 ${
-                  expand
-                    ? "left-1/2 -bottom-1.5 -translate-x-1/2"
-                    : "left-6 -bottom-1.5"
-                }`}
+                className={`w-3 h-3 absolute bg-gray-900 rotate-45 ${expand
+                  ? "left-1/2 -bottom-1.5 -translate-x-1/2"
+                  : "left-6 -bottom-1.5"
+                  }`}
               ></div>
             </div>
           </div>
@@ -141,11 +152,10 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
         <SignedIn>
           <div
             className={`flex items-center transition-all duration-200 cursor-pointer group
-            ${
-              expand
+            ${expand
                 ? "hover:bg-white/10 rounded-lg gap-3 p-2 text-white/70 text-sm"
                 : "justify-center h-10 w-10 mx-auto hover:bg-gray-500/30 rounded-lg relative"
-            }`}
+              }`}
           >
             <UserButton afterSignOutUrl="/" />
             {expand && <span className="font-medium">My Account</span>}
@@ -161,11 +171,10 @@ export default function Sidebar({ expand, setExpand }: SidebarProps) {
           <div
             onClick={() => openSignIn()}
             className={`flex items-center transition-all duration-200 cursor-pointer group
-            ${
-              expand
+            ${expand
                 ? "hover:bg-white/10 rounded-lg gap-3 p-2 text-white/70 text-sm"
                 : "justify-center h-10 w-10 mx-auto hover:bg-gray-500/30 rounded-lg relative"
-            }`}
+              }`}
           >
             <Image
               src={assets.profile_icon}

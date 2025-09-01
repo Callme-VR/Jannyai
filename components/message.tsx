@@ -3,6 +3,7 @@ import Image from "next/image";
 import Markdown from "react-markdown";
 import Prism from 'prismjs';
 import { useEffect } from "react";
+import toast from "react-hot-toast";
 
 interface MessagesProps {
     role: string,
@@ -14,6 +15,11 @@ export default function Messages({ role, content }: MessagesProps) {
         Prism.highlightAll();
     }, [content])
 
+    const copyMessages = () => {
+        navigator.clipboard.writeText(content);
+        toast.success("Copied To Clipboard")
+    }
+
     return (
         <div className="flex flex-col items-center w-full max-full max-w-3xl text-sm">
             <div className={`flex flex-col w-full mb-8 ${role === "user" && "items-end"}`}>
@@ -23,13 +29,13 @@ export default function Messages({ role, content }: MessagesProps) {
                             {
                                 role === "user" ? (
                                     <>
-                                        <Image src={assets.copy_icon} alt="" className="w-4 cursor-pointer" />
+                                        <Image onClick={copyMessages} src={assets.copy_icon} alt="" className="w-4 cursor-pointer" />
                                         <Image src={assets.pencil_icon} alt="" className="w-4.5 cursor-pointer" />
                                     </>
 
                                 ) : (
                                     <>
-                                        <Image src={assets.copy_icon} alt="" className="w-4.5 cursor-pointer" />
+                                        <Image onClick={copyMessages} src={assets.copy_icon} alt="" className="w-4.5 cursor-pointer" />
                                         <Image src={assets.regenerate_icon} alt="" className="w-4 cursor-pointer" />
                                         <Image src={assets.like_icon} alt="" className="w-4 cursor-pointer" />
                                         <Image src={assets.dislike_icon} alt="" className="w-4 cursor-pointer" />
