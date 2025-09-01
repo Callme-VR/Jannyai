@@ -1,33 +1,13 @@
 "use client";
+import React, { useState, Dispatch, SetStateAction, FormEvent } from "react";
 import { assets } from "@/assets/assets";
 import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
 import Image from "next/image";
-import { useState, Dispatch, SetStateAction, FormEvent } from "react";
 import toast from "react-hot-toast";
+import { Message, Chat, PromptBoxProps, ChatApiResponse } from "@/types";
 
-// Define interfaces for type safety (matching AppContext types)
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-  timestamp: number;
-}
-
-interface Chat {
-  _id: string;
-  name: string;
-  messages: Message[];
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface PromptBoxProps {
-  isLoading: boolean;
-  setIsLoading: Dispatch<SetStateAction<boolean>>;
-}
-
-export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps) {
+export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps): React.JSX.Element {
   const [prompt, setPrompt] = useState('');
 
   const {
@@ -94,7 +74,7 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps) {
       }
 
       // Send message to AI API
-      const { data } = await axios.post("/api/chat/ai", {
+      const { data }: { data: ChatApiResponse } = await axios.post("/api/chat/ai", {
         chatId: selectedChat._id,
         message: prompt.trim(),
         conversationHistory: selectedChat.messages
@@ -177,8 +157,14 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps) {
     <form
       className="w-full bg-[#404045] p-4 rounded-2xl transition-all shadow-md"
       onSubmit={sendPrompt}
+      role="form"
+      aria-label="Send message to AI"
     >
+      <label htmlFor="message-input" className="sr-only">
+        Type your message to Sharky
+      </label>
       <textarea
+        id="message-input"
         className="outline-none w-full resize-none overflow-hidden bg-transparent text-white placeholder-gray-400 text-sm"
         rows={2}
         placeholder="Message Sharky..."
@@ -186,28 +172,47 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps) {
         onChange={(e) => setPrompt(e.target.value)}
         value={prompt}
         disabled={isLoading}
+        onKeyDown={handleKeyDown}
+        aria-describedby="message-help"
       />
+      <div id="message-help" className="sr-only">
+        Press Enter to send, Shift+Enter for new line
+      </div>
 
       <div className="flex items-center justify-between mt-3">
         {/* Left Options */}
-        <div className="flex items-center gap-2">
-          <p className="flex items-center gap-1.5 text-xs border border-gray-400 px-2 py-1 rounded-full cursor-pointer hover:bg-gray-500/20 transition">
-            <Image src={assets.deepthink_icon} alt="DeepThink" className="w-3 h-3" />
+        <div className="flex items-center gap-2" role="group" aria-label="Message options">
+          <button
+            type="button"
+            className="flex items-center gap-1.5 text-xs border border-gray-400 px-2 py-1 rounded-full cursor-pointer hover:bg-gray-500/20 transition"
+            aria-label="Enable DeepThink mode"
+          >
+            <Image src={assets.deepthink_icon} alt="" className="w-3 h-3" />
             DeepThink(R3)
-          </p>
-          <p className="flex items-center gap-1.5 text-xs border border-gray-400 px-2 py-1 rounded-full cursor-pointer hover:bg-gray-500/20 transition">
-            <Image src={assets.search_icon} alt="Search" className="w-3 h-3" />
+          </button>
+          <button
+            type="button"
+            className="flex items-center gap-1.5 text-xs border border-gray-400 px-2 py-1 rounded-full cursor-pointer hover:bg-gray-500/20 transition"
+            aria-label="Enable search mode"
+          >
+            <Image src={assets.search_icon} alt="" className="w-3 h-3" />
             Search
-          </p>
+          </button>
         </div>
 
         {/* Right Options */}
         <div className="flex items-center gap-2">
-          <Image
-            className="w-4 cursor-pointer opacity-80 hover:opacity-100"
-            src={assets.pin_icon}
-            alt="Pin"
-          />
+          <button
+            type="button"
+            className="opacity-80 hover:opacity-100 transition-opacity"
+            aria-label="Pin message"
+          >
+            <Image
+              className="w-4"
+              src={assets.pin_icon}
+              alt=""
+            />
+          </button>
           <button
             type="submit"
             disabled={!prompt.trim() || isLoading}
@@ -215,11 +220,12 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps) {
               ? 'bg-primary hover:bg-primary/90'
               : 'bg-gray-500'
               } rounded-full p-3 transition`}
+            aria-label={isLoading ? 'Sending message...' : 'Send message'}
           >
             <Image
               className="w-4"
               src={prompt.trim() && !isLoading ? assets.arrow_icon : assets.arrow_icon_dull}
-              alt="Send"
+              alt=""
             />
           </button>
         </div>

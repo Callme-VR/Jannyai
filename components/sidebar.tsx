@@ -1,17 +1,13 @@
 "use client";
+import React, { useState } from "react";
 import { assets } from "@/assets/assets";
 import { useClerk, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { useAppContext } from "@/context/AppContext";
 import Image from "next/image";
 import ChatLabel from "./chatlabel";
-import { useState } from "react";
+import { SidebarProps } from "@/types";
 
-interface SidebarProps {
-  expand: boolean;
-  setExpand: (expand: boolean) => void;
-}
-
-export default function Sidebar({ expand, setExpand }: SidebarProps) {
+export default function Sidebar({ expand, setExpand }: SidebarProps): React.JSX.Element {
   const { openSignIn } = useClerk();
   const { user, chats, createNewChat } = useAppContext();
 

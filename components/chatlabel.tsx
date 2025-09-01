@@ -1,18 +1,12 @@
+import React from "react";
 import { assets } from "@/assets/assets";
 import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
 import Image from "next/image";
-import React from "react";
 import toast from "react-hot-toast";
+import { ChatLabelProps, ChatApiResponse } from "@/types";
 
-interface ChatLabelProps {
-  openMenu: { id: string | null; open: boolean };
-  setOpenMenu: (openMenu: { id: string | null; open: boolean }) => void;
-  chatId: string;
-  name?: string;
-}
-
-export default function ChatLabel({ openMenu, setOpenMenu, chatId, name }: ChatLabelProps) {
+export default function ChatLabel({ openMenu, setOpenMenu, chatId, name }: ChatLabelProps): React.JSX.Element {
   const toggleMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (openMenu.open && openMenu.id === chatId) {
@@ -32,15 +26,15 @@ export default function ChatLabel({ openMenu, setOpenMenu, chatId, name }: ChatL
       setSelectedChat(chatsData);
     }
   };
-  const renameChat = async () => {
+  const renameChat = async (): Promise<void> => {
     try {
       const newName = prompt("Enter new Name");
       if (!newName) return;
-      const { data } = await axios.post("/api/chat/rename", { chatId: chatId, name: newName });
+      const { data }: { data: ChatApiResponse } = await axios.post("/api/chat/rename", { chatId: chatId, name: newName });
       if (data.success) {
         fetchChats();
         setOpenMenu({ id: null, open: false });
-        toast.success(data.message);
+        toast.success(data.message || "Chat renamed successfully");
       } else {
         toast.error(data.message || "Failed to rename chat");
       }
@@ -53,15 +47,15 @@ export default function ChatLabel({ openMenu, setOpenMenu, chatId, name }: ChatL
     }
   };
 
-  const deleteChat = async () => {
+  const deleteChat = async (): Promise<void> => {
     try {
       const confirm = window.confirm("Are you sure you want to delete this chat?");
       if (!confirm) return;
-      const { data } = await axios.post("/api/chat/delete", { chatId: chatId });
+      const { data }: { data: ChatApiResponse } = await axios.post("/api/chat/delete", { chatId: chatId });
       if (data.success) {
         fetchChats();
         setOpenMenu({ id: null, open: false });
-        toast.success(data.message);
+        toast.success(data.message || "Chat deleted successfully");
       } else {
         toast.error(data.message || "Failed to delete chat");
       }
@@ -91,7 +85,15 @@ export default function ChatLabel({ openMenu, setOpenMenu, chatId, name }: ChatL
         onClick={toggleMenu}
         className="flex items-center justify-center h-6 w-6 aspect-square hover:bg-black/80 rounded-lg"
       >
-        <Image src={assets.three_dots} alt="" className={`w-4 ${openMenu.open && openMenu.id === chatId ? "hidden" : "group-hover:block"}`} />
+        <Image 
+          src={assets.three_dots} 
+          alt="Menu options" 
+          className={`w-4 ${
+            openMenu.open && openMenu.id === chatId 
+              ? "hidden" 
+              : "group-hover:block hidden"
+          }`} 
+        />
       </div>
 
       {/* Dropdown Menu */}

@@ -1,17 +1,13 @@
 import type { Metadata } from "next";
 import {
   ClerkProvider,
-  // SignInButton,
-  // SignUpButton,
-  // SignedIn,
-  // SignedOut,
-  // UserButton,
 } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import "./prism.css"
+import "./prism.css";
 import { AppContextProvider } from "@/context/AppContext";
 import { Toaster } from "react-hot-toast";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 
 const inter = Inter({
@@ -34,21 +30,23 @@ export default function RootLayout({
       <AppContextProvider>
         <html lang="en">
           <body className={`${inter.variable} antialiased`}>
-            <Toaster toastOptions={{
-              success: {
-                style: {
-                  background: 'green',
-                  color: 'white'
+            <ErrorBoundary>
+              <Toaster toastOptions={{
+                success: {
+                  style: {
+                    background: 'green',
+                    color: 'white'
+                  }
+                },
+                error: {
+                  style: {
+                    background: 'red',
+                    color: 'white'
+                  }
                 }
-              },
-              error: {
-                style: {
-                  background: 'red',
-                  color: 'white'
-                }
-              }
-            }} />
-            {children}
+              }} />
+              {children}
+            </ErrorBoundary>
           </body>
         </html>
       </AppContextProvider>
