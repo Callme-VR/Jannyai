@@ -9,10 +9,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const { userId } = getAuth(req);
     if (!userId) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "User not authenticated",
-        },
+        { success: false, message: "User not authenticated" },
         { status: 401 }
       );
     }
@@ -26,34 +23,20 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       const chat = await Chat.findOne({ _id: chatId, userId });
       if (!chat) {
         return NextResponse.json(
-          {
-            success: false,
-            message: "Chat not found or unauthorized",
-          },
+          { success: false, message: "Chat not found or unauthorized" },
           { status: 404 }
         );
       }
-      return NextResponse.json(
-        {
-          success: true,
-          chat,
-        },
-        { status: 200 }
-      );
+      return NextResponse.json({ success: true, chat }, { status: 200 });
     } else {
       const chats = await Chat.find({ userId })
         .sort({ updatedAt: -1 })
         .select("name messages updatedAt createdAt");
 
-      return NextResponse.json(
-        {
-          success: true,
-          chats,
-        },
-        { status: 200 }
-      );
+      return NextResponse.json({ success: true, chats }, { status: 200 });
     }
   } catch (error: unknown) {
+    console.error("Chat API error:", error);
     logger.error(
       "Failed to fetch chats",
       error instanceof Error ? error : new Error(String(error))
@@ -61,10 +44,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const errorMessage = handleNetworkError(error);
 
     return NextResponse.json(
-      {
-        success: false,
-        error: errorMessage,
-      },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }
