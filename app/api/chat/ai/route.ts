@@ -67,7 +67,7 @@ export async function POST(
     await ConnectDb();
 
     // Verify chat ownership and existence
-    const existingChat = await (Chat.findOne({ _id: chatId, userId }) as any);
+    const existingChat = await (Chat.findById({ _id: chatId, userId }) as any);
     if (!existingChat) {
       return NextResponse.json(
         {
