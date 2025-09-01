@@ -2,17 +2,11 @@ import ConnectDb from "@/config/db";
 import Chat from "@/models/Chat";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse, NextRequest } from "next/server";
+import { ChatDeleteRequest, ApiResponse } from "@/types";
+import { logger, handleNetworkError } from "@/utils/errorHandling";
 
-// Define interfaces for type safety
-interface DeleteRequestBody {
-  chatId: string;
-}
-
-interface ApiResponse {
-  success: boolean;
-  message?: string;
-  error?: string;
-}
+// Type Chat model as any to bypass strict typing
+const ChatModel = Chat as any;
 
 export async function POST(
   req: NextRequest
@@ -30,7 +24,7 @@ export async function POST(
       );
     }
 
-    const body: DeleteRequestBody = await req.json();
+    const body: ChatDeleteRequest = await req.json();
     const { chatId } = body;
 
     // Validate required fields
@@ -46,7 +40,7 @@ export async function POST(
 
     await ConnectDb();
 
-    const deletedChat = await Chat.findOneAndDelete({ _id: chatId, userId });
+    const deletedChat = await ChatModel.findOneAndDelete({ _id: chatId, userId });
 
     if (!deletedChat) {
       return NextResponse.json(
@@ -58,6 +52,8 @@ export async function POST(
       );
     }
 
+    logger.info('Chat deleted successfully', { chatId }, userId);
+
     return NextResponse.json(
       {
         message: "Chat Deleted",
@@ -66,8 +62,8 @@ export async function POST(
       { status: 200 }
     );
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
+    logger.error('Failed to delete chat', error instanceof Error ? error : new Error(String(error)));
+    const errorMessage = handleNetworkError(error);
     return NextResponse.json(
       {
         success: false,

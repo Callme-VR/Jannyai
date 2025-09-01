@@ -30,7 +30,7 @@ function initializeGeminiAI() {
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not defined in environment variables");
   }
-  return new GoogleGenAI({});
+  return new GoogleGenAI({ apiKey });
 }
 
 export async function POST(
@@ -67,7 +67,7 @@ export async function POST(
     await ConnectDb();
 
     // Verify chat ownership and existence
-    const existingChat = await Chat.findOne({ _id: chatId, userId });
+    const existingChat = await (Chat.findOne({ _id: chatId, userId }) as any);
     if (!existingChat) {
       return NextResponse.json(
         {
@@ -115,7 +115,7 @@ export async function POST(
     };
 
     // Update chat with new messages
-    await Chat.findByIdAndUpdate(
+    await (Chat.findByIdAndUpdate(
       chatId,
       {
         $push: {
@@ -126,7 +126,7 @@ export async function POST(
         updatedAt: new Date(),
       },
       { new: true }
-    );
+    ) as any);
 
     return NextResponse.json(
       {

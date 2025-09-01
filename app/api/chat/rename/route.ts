@@ -2,18 +2,11 @@ import Chat from "@/models/Chat";
 import ConnectDb from "@/config/db";
 import { NextResponse, NextRequest } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
+import { ChatRenameRequest, ApiResponse } from "@/types";
+import { logger, handleNetworkError } from "@/utils/errorHandling";
 
-// Define interfaces for type safety
-interface RenameRequestBody {
-  chatId: string;
-  name: string;
-}
-
-interface ApiResponse {
-  success: boolean;
-  message?: string;
-  error?: string;
-}
+// Type Chat model as any to bypass strict typing
+const ChatModel = Chat as any;
 
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
@@ -28,7 +21,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       }, { status: 401 });
     }
     
-    const body: RenameRequestBody = await req.json();
+    const body: ChatRenameRequest = await req.json();
     const { chatId, name } = body;
 
     // Validate required fields
@@ -39,7 +32,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       }, { status: 400 });
     }
 
-    const updatedChat = await Chat.findOneAndUpdate(
+    const updatedChat = await ChatModel.findOneAndUpdate(
       { _id: chatId, userId }, 
       { name },
       { new: true }
@@ -52,13 +45,15 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       }, { status: 404 });
     }
 
+    logger.info('Chat renamed successfully', { chatId, newName: name }, userId);
+
     return NextResponse.json({
       success: true,
       message: "Chat Updated",
     }, { status: 200 });
   } catch (error) {
-    // Type-safe error handling
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    logger.error('Failed to rename chat', error instanceof Error ? error : new Error(String(error)));
+    const errorMessage = handleNetworkError(error);
     return NextResponse.json({
       success: false,
       error: errorMessage,

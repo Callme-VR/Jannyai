@@ -2,19 +2,11 @@ import ConnectDb from "@/config/db";
 import Chat from "@/models/Chat";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse, NextRequest } from "next/server";
+import { ApiResponse, ChatCreateRequest } from "@/types";
+import { logger, handleNetworkError } from "@/utils/errorHandling";
 
-// Define interfaces for type safety
-interface ChatData {
-  userId: string;
-  message: any[]; // Consider defining a proper Message interface
-  name: string;
-}
-
-interface ApiResponse {
-  success: boolean;
-  message?: string;
-  error?: string;
-}
+// Type Chat model as any to bypass strict typing
+const ChatModel = Chat as any;
 
 export async function POST(
   req: NextRequest
@@ -31,14 +23,16 @@ export async function POST(
       );
     }
 
-    const chatData: ChatData = {
+    const chatData: ChatCreateRequest = {
       userId,
-      message: [],
+      messages: [],
       name: "New chat",
     };
 
     await ConnectDb();
-    await Chat.create(chatData);
+    await ChatModel.create(chatData);
+
+    logger.info('New chat created successfully', undefined, userId);
 
     return NextResponse.json(
       {
@@ -48,9 +42,8 @@ export async function POST(
       { status: 201 }
     );
   } catch (error) {
-    // Type-safe error handling
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
+    logger.error('Failed to create chat', error instanceof Error ? error : new Error(String(error)));
+    const errorMessage = handleNetworkError(error);
 
     return NextResponse.json(
       {

@@ -2,6 +2,10 @@ import { Webhook } from "svix";
 import ConnectDb from "@/config/db";
 import User from "@/models/User";
 import { headers } from "next/headers";
+import { logger, validateEnvVar } from "@/utils/errorHandling";
+
+// Type User model as any to bypass strict typing
+const UserModel = User as any;
 
 // Define Clerk webhook event type
 interface ClerkWebhookEvent {
@@ -16,22 +20,20 @@ interface ClerkWebhookEvent {
 }
 
 export async function POST(req: Request) {
-  const webhookSecret = process.env.WEBHOOK_SECRET;
-  if (!webhookSecret) {
-    throw new Error("WEBHOOK_SECRET is not defined in environment variables");
-  }
-
   try {
+    const webhookSecret = validateEnvVar('CLERK_WEBHOOK_SECRET', process.env.CLERK_WEBHOOK_SECRET);
+
     // Get headers and request body
-    const headerPayload = headers();
+    const headerPayload = await headers();
     const body = await req.text();
 
-    // Extract required Svix headers
-    const svixId = (await headerPayload).get("svix-id");
-    const svixTimestamp = (await headerPayload).get("svix-timestamp");
-    const svixSignature = (await headerPayload).get("svix-signature");
+    // Extract required Svix headers with proper validation
+    const svixId = headerPayload.get("svix-id");
+    const svixTimestamp = headerPayload.get("svix-timestamp");
+    const svixSignature = headerPayload.get("svix-signature");
 
     if (!svixId || !svixTimestamp || !svixSignature) {
+      logger.warn('Missing required webhook headers');
       return new Response("Missing required webhook headers", { status: 400 });
     }
 
@@ -64,27 +66,30 @@ export async function POST(req: Request) {
     // Handle events
     switch (type) {
       case "user.created":
-        await User.create(userData);
+        await UserModel.create(userData);
+        logger.info('User created via webhook', { clerkId: data.id });
         break;
 
       case "user.updated":
-        await User.findOneAndUpdate({ clerkId: data.id }, userData, {
+        await UserModel.findOneAndUpdate({ clerkId: data.id }, userData, {
           new: true,
           upsert: true,
         });
+        logger.info('User updated via webhook', { clerkId: data.id });
         break;
 
       case "user.deleted":
-        await User.findOneAndDelete({ clerkId: data.id });
+        await UserModel.findOneAndDelete({ clerkId: data.id });
+        logger.info('User deleted via webhook', { clerkId: data.id });
         break;
 
       default:
-        console.log(`Unhandled webhook event type: ${type}`);
+        logger.warn(`Unhandled webhook event type: ${type}`);
     }
 
     return new Response("Webhook processed successfully", { status: 200 });
   } catch (error) {
-    console.error("Webhook processing error:", error);
+    logger.error('Webhook processing error', error instanceof Error ? error : new Error(String(error)));
     return new Response("Internal server error", { status: 500 });
   }
 }
