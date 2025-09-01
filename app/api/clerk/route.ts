@@ -5,7 +5,6 @@ import { headers } from "next/headers";
 import { logger, validateEnvVar } from "@/utils/errorHandling";
 
 // Type User model as any to bypass strict typing
-const UserModel = User as any;
 
 // Define Clerk webhook event type
 interface ClerkWebhookEvent {
@@ -66,12 +65,12 @@ export async function POST(req: Request) {
     // Handle events
     switch (type) {
       case "user.created":
-        await UserModel.create(userData);
+        await User.create(userData);
         logger.info('User created via webhook', { clerkId: data.id });
         break;
 
       case "user.updated":
-        await UserModel.findOneAndUpdate({ clerkId: data.id }, userData, {
+        await User.findOneAndUpdate({ clerkId: data.id }, userData, {
           new: true,
           upsert: true,
         });
@@ -79,7 +78,7 @@ export async function POST(req: Request) {
         break;
 
       case "user.deleted":
-        await UserModel.findOneAndDelete({ clerkId: data.id });
+        await User.findOneAndDelete({ clerkId: data.id });
         logger.info('User deleted via webhook', { clerkId: data.id });
         break;
 
