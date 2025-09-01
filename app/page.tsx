@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { assets } from "../assets/assets.js";
+import { assets } from "../assets/assets";
 import Sidebar from "@/components/sidebar";
 import PromptBox from "@/components/promptbox";
 import Messages from "@/components/message";
@@ -67,7 +67,7 @@ export default function Home(): React.JSX.Element {
             <>
               <div className="flex items-center gap-4 mb-4">
                 <Image src={assets.logo_icon} alt="Sharky AI Logo" className="h-16 w-16" />
-                <h1 className="text-3xl font-semibold">Hi, I'm Sharky</h1>
+                <h1 className="text-3xl font-semibold">Hi, I&apos;m Sharky</h1>
               </div>
               <p className="text-base text-gray-300 leading-relaxed px-4">
                 How can I help you today?

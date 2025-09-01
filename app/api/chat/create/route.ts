@@ -5,9 +5,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { ApiResponse, ChatCreateRequest } from "@/types";
 import { logger, handleNetworkError } from "@/utils/errorHandling";
 
-// Type Chat model as any to bypass strict typing
-const ChatModel = Chat as any;
-
+// Create new chat in database
 export async function POST(
   req: NextRequest
 ): Promise<NextResponse<ApiResponse>> {
@@ -30,7 +28,7 @@ export async function POST(
     };
 
     await ConnectDb();
-    await ChatModel.create(chatData);
+    await Chat.create(chatData);
 
     logger.info('New chat created successfully', undefined, userId);
 

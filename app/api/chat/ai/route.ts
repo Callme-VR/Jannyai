@@ -28,7 +28,7 @@ interface ApiResponse {
 function initializeGeminiAI() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not defined in environment variables");
+    throw new Error("GOOGLE_GENAI_API_KEY is not defined in environment variables");
   }
   return new GoogleGenAI({ apiKey });
 }
@@ -67,7 +67,7 @@ export async function POST(
     await ConnectDb();
 
     // Verify chat ownership and existence
-    const existingChat = await (Chat.findById({ _id: chatId, userId }) as any);
+    const existingChat = await Chat.findOne({ _id: chatId, userId });
     if (!existingChat) {
       return NextResponse.json(
         {
@@ -93,13 +93,13 @@ export async function POST(
 
     // Initialize Gemini AI
     const genAI = initializeGeminiAI();
+    
     const response = await genAI.models.generateContent({
       model: "gemini-2.0-flash-exp",
-      contents: prompt,
+      contents: prompt
     });
 
-    const aiResponse =
-      response.text || "Sorry, I couldn't generate a response.";
+    const aiResponse = response.text || "Sorry, I couldn't generate a response.";
 
     // Create message objects
     const timestamp = Date.now();
@@ -115,7 +115,7 @@ export async function POST(
     };
 
     // Update chat with new messages
-    await (Chat.findByIdAndUpdate(
+    await Chat.findByIdAndUpdate(
       chatId,
       {
         $push: {
@@ -126,7 +126,7 @@ export async function POST(
         updatedAt: new Date(),
       },
       { new: true }
-    ) as any);
+    );
 
     return NextResponse.json(
       {

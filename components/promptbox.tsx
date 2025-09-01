@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, Dispatch, SetStateAction, FormEvent } from "react";
+import React, { useState, FormEvent } from "react";
 import { assets } from "@/assets/assets";
 import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
@@ -12,7 +12,6 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps): 
 
   const {
     user,
-    chats,
     setChats,
     selectedChat,
     setSelectedChat,
@@ -20,12 +19,13 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps): 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendPrompt(e as any);
+      sendPrompt(e as unknown as FormEvent<HTMLFormElement>);
     }
   }
   const sendPrompt = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const promptCopy = prompt;
+    
     try {
       if (!user) {
         toast.error("Please login to send prompt");
@@ -35,12 +35,10 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps): 
         toast.error("Wait for response");
         return;
       }
-
       if (!selectedChat) {
         toast.error("Please select a chat");
         return;
       }
-
       if (!prompt.trim()) {
         toast.error("Please enter a message");
         return;
@@ -56,22 +54,18 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps): 
       };
 
       // Update selected chat with user message
-      if (selectedChat) {
-        const updatedChat: Chat = {
-          ...selectedChat,
-          messages: [...selectedChat.messages, userMessage]
-        };
-        setSelectedChat(updatedChat);
+      const updatedChat: Chat = {
+        ...selectedChat,
+        messages: [...selectedChat.messages, userMessage]
+      };
+      setSelectedChat(updatedChat);
 
-        // Update chats array with user message
-        setChats((prevChats: Chat[]) =>
-          prevChats.map((chat: Chat) =>
-            chat._id === selectedChat._id
-              ? updatedChat
-              : chat
-          )
-        );
-      }
+      // Update chats array with user message
+      setChats((prevChats: Chat[]) =>
+        prevChats.map((chat: Chat) =>
+          chat._id === selectedChat._id ? updatedChat : chat
+        )
+      );
 
       // Send message to AI API
       const { data }: { data: ChatApiResponse } = await axios.post("/api/chat/ai", {
@@ -88,66 +82,36 @@ export default function PromptBox({ isLoading, setIsLoading }: PromptBoxProps): 
         };
 
         // Update selected chat with AI response
-        if (selectedChat) {
-          const updatedChatWithAI: Chat = {
-            ...selectedChat,
-            messages: [...selectedChat.messages, userMessage, aiMessage]
-          };
-          setSelectedChat(updatedChatWithAI);
+        const updatedChatWithAI: Chat = {
+          ...selectedChat,
+          messages: [...selectedChat.messages, userMessage, aiMessage]
+        };
+        setSelectedChat(updatedChatWithAI);
 
-          // Update chats array with AI response
-          setChats((prevChats: Chat[]) =>
-            prevChats.map((chat: Chat) =>
-              chat._id === selectedChat._id
-                ? updatedChatWithAI
-                : chat
-            )
-          );
-        }
+        // Update chats array with AI response
+        setChats((prevChats: Chat[]) =>
+          prevChats.map((chat: Chat) =>
+            chat._id === selectedChat._id ? updatedChatWithAI : chat
+          )
+        );
 
         toast.success("Response received");
       } else {
         toast.error(data.message || "Failed to get AI response");
         setPrompt(promptCopy);
 
-        // Remove the user message if AI failed
-        if (selectedChat) {
-          const revertedChat: Chat = {
-            ...selectedChat,
-            messages: selectedChat.messages.slice(0, -1)
-          };
-          setSelectedChat(revertedChat);
-
-          setChats((prevChats: Chat[]) =>
-            prevChats.map((chat: Chat) =>
-              chat._id === selectedChat._id
-                ? revertedChat
-                : chat
-            )
-          );
-        }
+        // Revert changes on error
+        setSelectedChat(selectedChat);
+        setChats((prevChats: Chat[]) => prevChats);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to send message";
       toast.error(errorMessage);
       setPrompt(promptCopy);
 
-      // Remove the user message if request failed
-      if (selectedChat) {
-        const revertedChat: Chat = {
-          ...selectedChat,
-          messages: selectedChat.messages.slice(0, -1)
-        };
-        setSelectedChat(revertedChat);
-
-        setChats((prevChats: Chat[]) =>
-          prevChats.map((chat: Chat) =>
-            chat._id === selectedChat._id
-              ? revertedChat
-              : chat
-          )
-        );
-      }
+      // Revert changes on error
+      setSelectedChat(selectedChat);
+      setChats((prevChats: Chat[]) => prevChats);
     } finally {
       setIsLoading(false);
     }

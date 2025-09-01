@@ -5,8 +5,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { ChatDeleteRequest, ApiResponse } from "@/types";
 import { logger, handleNetworkError } from "@/utils/errorHandling";
 
-// Type Chat model as any to bypass strict typing
-
+// Delete chat route
 export async function POST(
   req: NextRequest
 ): Promise<NextResponse<ApiResponse>> {

@@ -9,7 +9,7 @@ import { SidebarProps } from "@/types";
 
 export default function Sidebar({ expand, setExpand }: SidebarProps): React.JSX.Element {
   const { openSignIn } = useClerk();
-  const { user, chats, createNewChat } = useAppContext();
+  const { chats, createNewChat } = useAppContext();
 
   // track which chat has menu open
   const [openMenu, setOpenMenu] = useState<{ id: string | null; open: boolean }>({
@@ -78,7 +78,7 @@ export default function Sidebar({ expand, setExpand }: SidebarProps): React.JSX.
       >
         <p className="mb-2">Recents</p>
         <div className="space-y-2">
-          {chats.map((chat, index) => (
+          {chats.map((chat) => (
             <ChatLabel
               key={chat._id}
               openMenu={openMenu}

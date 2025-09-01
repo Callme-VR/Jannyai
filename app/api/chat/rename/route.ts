@@ -5,9 +5,7 @@ import { getAuth } from "@clerk/nextjs/server";
 import { ChatRenameRequest, ApiResponse } from "@/types";
 import { logger, handleNetworkError } from "@/utils/errorHandling";
 
-// Type Chat model as any to bypass strict typing
-const ChatModel = Chat as any;
-
+// Rename chat route
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
     await ConnectDb();
@@ -32,7 +30,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       }, { status: 400 });
     }
 
-    const updatedChat = await ChatModel.findOneAndUpdate(
+    const updatedChat = await Chat.findOneAndUpdate(
       { _id: chatId, userId }, 
       { name },
       { new: true }

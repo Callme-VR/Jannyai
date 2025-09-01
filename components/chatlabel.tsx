@@ -19,11 +19,10 @@ export default function ChatLabel({ openMenu, setOpenMenu, chatId, name }: ChatL
 
   const { fetchChats, chats, setSelectedChat } = useAppContext();
   
-  const selectedChat = () => {
-    const chatsData = chats.find(chat => chat._id === chatId);
-    console.log(chatsData);
-    if (chatsData) {
-      setSelectedChat(chatsData);
+  const selectChat = () => {
+    const chatData = chats.find(chat => chat._id === chatId);
+    if (chatData) {
+      setSelectedChat(chatData);
     }
   };
   const renameChat = async (): Promise<void> => {
@@ -68,16 +67,8 @@ export default function ChatLabel({ openMenu, setOpenMenu, chatId, name }: ChatL
     }
   };
 
-
-
-
-
-
-
-
-
   return (
-    <div onClick={selectedChat} className="flex items-center justify-between p-2 text-white/80 hover:bg-white/10 rounded-lg text-sm group cursor-pointer relative">
+    <div onClick={selectChat} className="flex items-center justify-between p-2 text-white/80 hover:bg-white/10 rounded-lg text-sm group cursor-pointer relative">
       <p className="truncate group-hover:max-w-5/6">{name || "Chat Name here!"}</p>
 
       {/* Dots button */}
@@ -98,8 +89,7 @@ export default function ChatLabel({ openMenu, setOpenMenu, chatId, name }: ChatL
 
       {/* Dropdown Menu */}
       {openMenu.open && openMenu.id === chatId && (
-        <div onClick={renameChat} 
-        className="absolute right-0 top-8 w-40 rounded-xl bg-gray-700 p-2 shadow-lg z-50">
+        <div className="absolute right-0 top-8 w-40 rounded-xl bg-gray-700 p-2 shadow-lg z-50">
           <div onClick={renameChat} className="flex items-center gap-3 hover:bg-white/10 px-3 py-2 rounded-lg cursor-pointer">
             <Image src={assets.pencil_icon} alt="rename" className="w-4" />
             <p>Rename</p>

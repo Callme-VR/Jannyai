@@ -7,11 +7,10 @@ interface MongooseCache {
 
 // Extend the global object to include mongoose cache
 declare global {
-  // eslint-disable-next-line no-var
   var mongoose: MongooseCache | undefined;
 }
 
-let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
 export default async function ConnectDb() {
   if (cached.conn) return cached.conn;
