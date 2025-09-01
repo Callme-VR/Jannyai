@@ -1,6 +1,20 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema, Model } from "mongoose";
 
-const ChatSchema = new mongoose.Schema(
+export interface IMessage {
+  role: string;
+  content: string;
+  timestamp: number;
+}
+
+export interface IChat extends Document {
+  name: string;
+  messages: IMessage[];
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const ChatSchema = new Schema<IChat>(
   {
     name: { type: String, required: true },
     messages: [
@@ -15,5 +29,7 @@ const ChatSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Chat = mongoose.models.Chat || mongoose.model("Chat", ChatSchema);
+const Chat: Model<IChat> =
+  mongoose.models.Chat || mongoose.model<IChat>("Chat", ChatSchema);
+
 export default Chat;
