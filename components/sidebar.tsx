@@ -10,7 +10,6 @@ import { SidebarProps } from "@/types";
 export default function Sidebar({ expand, setExpand }: SidebarProps): React.JSX.Element {
   const { openSignIn } = useClerk();
   const { chats, createNewChat } = useAppContext();
-
   // track which chat has menu open
   const [openMenu, setOpenMenu] = useState<{ id: string | null; open: boolean }>({
     id: null,
@@ -153,7 +152,7 @@ export default function Sidebar({ expand, setExpand }: SidebarProps): React.JSX.
                 : "justify-center h-10 w-10 mx-auto hover:bg-gray-500/30 rounded-lg relative"
               }`}
           >
-            <UserButton afterSignOutUrl="/" />
+            <UserButton/>
             {expand && <span className="font-medium">My Account</span>}
             {!expand && (
               <div className="absolute left-1/2 -bottom-1.5 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
