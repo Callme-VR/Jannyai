@@ -4,8 +4,6 @@ import User from "@/models/User";
 import { headers } from "next/headers";
 import { logger, validateEnvVar } from "@/utils/errorHandling";
 
-// Type User model as any to bypass strict typing
-
 // Define Clerk webhook event type
 interface ClerkWebhookEvent {
   type: "user.created" | "user.updated" | "user.deleted" | string;
