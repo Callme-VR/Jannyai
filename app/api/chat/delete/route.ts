@@ -6,7 +6,6 @@ import { ChatDeleteRequest, ApiResponse } from "@/types";
 import { logger, handleNetworkError } from "@/utils/errorHandling";
 
 // Type Chat model as any to bypass strict typing
-const ChatModel = Chat as any;
 
 export async function POST(
   req: NextRequest
@@ -40,7 +39,7 @@ export async function POST(
 
     await ConnectDb();
 
-    const deletedChat = await ChatModel.findOneAndDelete({ _id: chatId, userId });
+    const deletedChat = await Chat.findOneAndDelete({ _id: chatId, userId });
 
     if (!deletedChat) {
       return NextResponse.json(
